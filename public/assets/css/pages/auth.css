@@ -1,0 +1,48 @@
+/* Background */
+.auth-wrapper {
+    min-height: calc(100vh - 120px);
+    background: radial-gradient(circle at top right, #eef3ff, #f8f9fb);
+}
+
+/* Card */
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 14px;
+}
+
+/* Inputs */
+.input-group-text {
+    border-radius: 8px;
+}
+
+/* Button */
+.btn-primary {
+    border-radius: 10px;
+    font-weight: 500;
+}
+.loader {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top: 2px solid #000;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.hidden { display: none; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.form-error {
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  margin-right: 3px;
+  display: block;
+}
+
+.invalid {
+  border-color: #dc2626;
+}
