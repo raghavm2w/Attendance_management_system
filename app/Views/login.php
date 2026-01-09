@@ -37,11 +37,12 @@
             </div>
 
             <!-- Button -->
-            <button type="submit" class="btn btn-primary w-100 py-2 mt-3">
+            <button id="login-btn" type="submit" class="btn btn-primary w-100 py-2 mt-3">
                 Sign In
             </button>
-              <span class="loader hidden"></span>
-
+            <div class="loader hidden">
+            <div class="spinner"></div>
+            </div>            
         </form>
     </div>
 </div>

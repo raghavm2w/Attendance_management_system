@@ -1,24 +1,27 @@
 const loginForm = document.getElementById("loginForm");
+const submitBtn = document.getElementById("login-btn");
 
-document.getElementById("eye-btn").addEventListener("click",(e) => {
-    togglePassword(e.currentTarget)
+document.getElementById("eye-btn").addEventListener("click", (e) => {
+  togglePassword(e.currentTarget)
 });
 function showLoader(show) {
   document.querySelector('.loader').classList.toggle('hidden', !show);
+    submitBtn.disabled = show;
+
 }
 function togglePassword(eye) {
-    const input = eye.previousElementSibling;
-    const icon = eye.querySelector("i");
+  const input = eye.previousElementSibling;
+  const icon = eye.querySelector("i");
 
-    if (input.type === "password") {
-        input.type = "text";
-        icon.classList.remove("bi-eye-slash");
-        icon.classList.add("bi-eye");
-    } else {
-        input.type = "password";
-        icon.classList.remove("bi-eye");
-        icon.classList.add("bi-eye-slash");
-    }
+  if (input.type === "password") {
+    input.type = "text";
+    icon.classList.remove("bi-eye-slash");
+    icon.classList.add("bi-eye");
+  } else {
+    input.type = "password";
+    icon.classList.remove("bi-eye");
+    icon.classList.add("bi-eye-slash");
+  }
 }
 const validateLoginEmail = () => {
   const email = document.getElementById('login-email');
@@ -42,14 +45,14 @@ const validateLoginPassword = () => {
   clearError(password);
   return true;
 };
-if(loginForm){
+if (loginForm) {
 
-    document.getElementById('login-email').addEventListener('change', validateLoginEmail);
-    document.getElementById('login-pass').addEventListener('change', validateLoginPassword);
-    loginForm.addEventListener('submit', async (e) => {
+  document.getElementById('login-email').addEventListener('change', validateLoginEmail);
+  document.getElementById('login-pass').addEventListener('change', validateLoginPassword);
+  loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!(validateLoginEmail() && validateLoginPassword())) return;
-
+    showLoader(true);
     const loginData = {
       email: loginForm.email.value.trim(),
       password: loginForm.password.value
@@ -58,27 +61,49 @@ if(loginForm){
     fetch('/login', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
       },
       body: JSON.stringify(loginData)
     })
       .then(res => res.json())
       .then(data => {
+        clearError(loginForm.email);
+        clearError(loginForm.password);
+       
         if (data.status === "error") {
-          showAlert(data.message, "error");
-          loginForm.reset();
+          document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.errors.csrf);
+
+          if (data.errors.errors) {
+            Object.entries(data.errors.errors).forEach(([field, message]) => {
+              const input = loginForm[field];
+              if (input) {
+                showError(input, message);
+              }
+            });
+          } else {
+            showAlert(data.message, "error");
+            loginForm.reset();
+          }
           return;
         }
-        if ( data.data.role === 'admin') {
+         if (data.data.csrf) {
+        document.querySelector('meta[name="csrf-token"]').setAttribute('content', data.data.csrf);
+      }
+
+        if (data.data.role === 'admin') {
           window.location.href = "/admin/dash";
         } else {
-          window.location.href = "/";
+          window.location.href = "/api";
         }
       })
       .catch(err => {
         console.error("Fetch error:", err);
         showAlert("An error occurred while login user", "error");
-      });
+      })
+      .finally(() => {
+    showLoader(false);
+  });
   });
 }
 
