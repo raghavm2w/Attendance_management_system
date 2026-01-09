@@ -12,7 +12,9 @@ class User extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = [
+        'name','email','password_hash','role','is_active','created_at','updated_at'
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -50,6 +52,14 @@ class User extends Model
         return $this->where('email', $email)
                     ->where('is_active', 1)
                     ->first();
+        }catch(\Throwable $e){
+            throw $e;
+        }
+    }
+    public function addUser($data)
+    {
+        try{
+            return $this->insert($data);
         }catch(\Throwable $e){
             throw $e;
         }

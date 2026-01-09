@@ -11,8 +11,14 @@ class Refresh extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $protectFields    = false;
+    protected $allowedFields    = [
+        'user_id',
+        'token',
+        'expires_at',
+        'created_at'
+        
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -24,8 +30,8 @@ class Refresh extends Model
     protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    protected $updatedField  = null;
+    protected $deletedField  = null;
 
     // Validation
     protected $validationRules      = [];
@@ -44,19 +50,30 @@ class Refresh extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function addRefreshToken($id,$token)
+    public function addRefreshToken($id, $token)
     {
-        try{
-            return $this->insert( [
-                 'user_id'    => $id,
-                 'token'      => $token,
-                 'expires_at' => date('Y-m-d H:i:s',time() + (int) getenv('JWT_REFRESH_TTL')),
-                 'created_at' => date('Y-m-d H:i:s')
+        try {
+            return $this->db->table($this->table)->insert([
+                'user_id'    => $id,
+                'token'      => $token,
+                'expires_at' => date('Y-m-d H:i:s', time() + (int) getenv('JWT_REFRESH_TTL')),
+                'created_at' => date('Y-m-d H:i:s')
             ]);
-
-
-        }catch(\Throwable $e){
+        } catch (\Throwable $e) {
             throw $e;
         }
+    }
+
+    public function validateRefreshToken($userId, $token)
+    {
+        return $this->where('user_id', $userId)
+                    ->where('token', $token)
+                    ->where('expires_at >', date('Y-m-d H:i:s'))
+                    ->first();
+    }
+
+    public function deleteRefreshToken($token)
+    {
+        return $this->where('token', $token)->delete();
     }
 }

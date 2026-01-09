@@ -36,7 +36,10 @@ class AuthController extends BaseController
         ];
 
         if (!$this->validate($rules)) {
-            return error(422, 'Validation failed', $this->validator->getErrors());
+            return error(422, 'Validation failed', [
+                'errors' => $this->validator->getErrors(),
+                'csrf'   => csrf_hash()
+            ]);
         }
                 $data = $this->request->getJSON(true);   
 
@@ -44,10 +47,10 @@ class AuthController extends BaseController
         $pass = $data['password'];
         $user = $this->userModel->findByEmail($email);
         if(!$user){
-            return error(404,"User not found !");
+            return error(404,"User not found !",[ 'csrf' => csrf_hash()]);
         }
         if(!password_verify($pass,$user['password_hash'])){
-            return error(400,"Incorrect password");
+            return error(400,"Incorrect password", ['csrf' => csrf_hash()]);
         }
           $accessToken = generateAccessToken([
             'id'    => $user['id'],
@@ -58,7 +61,7 @@ class AuthController extends BaseController
         $res = $this->refreshModel->addRefreshToken($user['id'],$refreshToken);
         if(!$res){
             log_message("error","failed to set refresh token in db");
-            return error(500,"internal server error in login");
+            return error(500,"internal server error in login",[ 'csrf' => csrf_hash()]);
         }
         $this->response->setCookie([
             'name'     => 'access_token',
@@ -77,11 +80,49 @@ class AuthController extends BaseController
             'secure' => isset($_SERVER['HTTPS']),
             'samesite' => 'Lax'
         ]);
-        return success(200,"login successful",["role"=>$user['role']]);
+        return success(200,"login successful",["role"=>$user['role'], "csrf" => csrf_hash()]);
 
         }catch (\Throwable $e) {
             log_message('error', "login error :".$e->getMessage());
-            return error(500, 'Internal server error');
+            return error(500, 'Internal server error',[ 'csrf' => csrf_hash()]);
+        }
+    }
+    public function logout()
+    {
+        try {
+            $refreshToken = $this->request->getCookie('refresh_token');
+
+            if ($refreshToken) {
+                // Delete the refresh token from the database
+                $this->refreshModel->deleteRefreshToken($refreshToken);
+            }
+
+            // Clear Cookies
+            $this->response->setCookie([
+                'name'     => 'access_token',
+                'value'    => '',
+                'expire'   => -3600,
+                'path'     => '/',
+                'httponly' => true,
+                'secure'   => isset($_SERVER['HTTPS']),
+                'samesite' => 'Lax'
+            ]);
+
+            $this->response->setCookie([
+                'name'     => 'refresh_token',
+                'value'    => '',
+                'expire'   => -3600,
+                'path'     => '/',
+                'httponly' => true,
+                'secure'   => isset($_SERVER['HTTPS']),
+                'samesite' => 'Lax'
+            ]);
+
+            return success(200, "Logged out successfully");
+
+        } catch (\Throwable $e) {
+            log_message('error', "logout error: " . $e->getMessage());
+            return error(500, 'Internal server error during logout');
         }
     }
 }
