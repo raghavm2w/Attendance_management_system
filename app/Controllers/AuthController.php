@@ -22,15 +22,23 @@ class AuthController extends BaseController
     }
     public function index()
     {
-         return view('login');
+        // Redirect if already logged in
+        if ($this->isLoggedIn()) {
+            return $this->redirectByRole();
+        }
+        return view('login');
     }
-     public function login()
+    public function login()
     {
-        try{
-        //      if ($this->request->getMethod() !== 'post') {
-        //     return error(400,"invalid request");
-        // }
-          $rules = [
+        try {
+            // Redirect if already logged in
+            if ($this->isLoggedIn()) {
+                $role = $_REQUEST['auth_user']['role'] ?? 'user';
+                $redirect = $role === 'admin' ? '/admin/dash' : '/api/home';
+                return success(200, 'Already logged in', ['role' => $role, 'redirect' => $redirect, 'csrf' => csrf_hash()]);
+            }
+            
+            $rules = [
             'email' => 'required|valid_email|max_length[100]|regex_match[/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/]',
             'password' => 'required|min_length[6]'
         ];
@@ -124,5 +132,29 @@ class AuthController extends BaseController
             log_message('error', "logout error: " . $e->getMessage());
             return error(500, 'Internal server error during logout');
         }
+    }
+    
+    private function isLoggedIn(): bool
+    {
+        $accessToken = $this->request->getCookie('access_token');
+        
+        if (empty($accessToken)) {
+            return false;
+        }
+        
+        try {
+            $decoded = verifyToken($accessToken);
+            $_REQUEST['auth_user'] = (array) $decoded->data;
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+    
+    private function redirectByRole()
+    {
+        $role = $_REQUEST['auth_user']['role'] ?? 'user';
+        $redirect = $role === 'admin' ? '/admin/dash' : '/api/home';
+        return redirect()->to($redirect);
     }
 }

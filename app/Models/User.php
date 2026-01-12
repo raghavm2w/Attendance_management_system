@@ -64,6 +64,74 @@ class User extends Model
             throw $e;
         }
     }
-
-
+    
+    public function getUsers(array $filters): array
+    {
+        try {
+            $builder = $this->builder();
+            
+            // Select with LEFT JOIN to get shift info
+            $builder->select('users.id, users.name, users.email, users.role, users.is_active, users.created_at, s.type as shift_type');
+            $builder->join('user_shifts us', 'us.user_id = users.id', 'left');
+            $builder->join('shifts s', 's.id = us.shift_id', 'left');
+            
+            // Search filter
+            if (!empty($filters['search'])) {
+                $builder->groupStart();
+                $builder->like('users.name', $filters['search']);
+                $builder->orLike('users.email', $filters['search']);
+                $builder->groupEnd();
+            }
+            
+            // Role filter
+            if (!empty($filters['role'])) {
+                $builder->where('users.role', $filters['role']);
+            }
+            
+            // Status filter
+            if ($filters['status'] !== '') {
+                $builder->where('users.is_active', $filters['status']);
+            }
+            
+            if (!empty($filters['shift'])) {
+                $shiftType = ucfirst(strtolower($filters['shift']));
+                $builder->where('s.type', $shiftType);
+            }
+            
+            // Get total count before pagination
+            $countBuilder = clone $builder;
+            $total = $countBuilder->countAllResults(false);
+            
+            // Sorting
+            $sortColumn = $filters['sort_by'];
+            if ($sortColumn === 'shift') {
+                $sortColumn = 's.type';
+            } elseif (in_array($sortColumn, ['name', 'email', 'role', 'is_active', 'created_at'])) {
+                $sortColumn = 'users.' . $sortColumn;
+            }
+            $builder->orderBy($sortColumn, $filters['sort_order']);
+            
+            // Pagination
+            $page = $filters['page'];
+            $perPage = $filters['per_page'];
+            $offset = ($page - 1) * $perPage;
+            $builder->limit($perPage, $offset);
+            
+            $users = $builder->get()->getResultArray();
+            
+            // Calculate from/to for pagination info
+            $from = $total > 0 ? $offset + 1 : 0;
+            $to = $total > 0 ? min($offset + $perPage, $total) : 0;
+            
+            return [
+                'users' => $users,
+                'total' => $total,
+                'from' => $from,
+                'to' => $to
+            ];
+            
+        } catch (\Throwable $e) {
+            throw $e;
+        }
+    }
 }

@@ -30,7 +30,6 @@ class AuthFilter implements FilterInterface
     {
         $accessToken = $request->getCookie('access_token');
         $refreshToken = $request->getCookie('refresh_token');
-                    log_message('info', 'fdgdfgdg');
 
         if (empty($accessToken)) {
             if (!empty($refreshToken)) {
