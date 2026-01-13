@@ -161,16 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
         addsubmitBtn.disabled = show;
 
     }
-    // Helper Functions
-    function escapeHtml(text) {
-        if (text === null || text === undefined) return '';
-        return String(text)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+   
 
     function showError(input, message) {
         input.classList.add('is-invalid');
@@ -301,8 +292,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const shiftBadge = user.shift_type
                 ? (user.shift_type.toLowerCase().includes('night') || user.shift_type.toLowerCase() === 'night'
-                    ? `<span class="badge badge-shift-night">${user.shift_type}</span>`
-                    : `<span class="badge badge-shift-day">${user.shift_type}</span>`)
+                    ? `<span class="badge badge-shift-night">${escapeHtml(user.shift_type)}</span>`
+                    : `<span class="badge badge-shift-day">${escapeHtml(user.shift_type)}</span>`)
                 : '<span class="badge bg-secondary">Not Assigned</span>';
 
             const statusBadge = user.is_active == 1

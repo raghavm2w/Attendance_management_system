@@ -21,6 +21,8 @@ $routes->group('admin', ['filter' => ['auth', 'admin']], function ($routes) {
     $routes->post('add-shift', 'Admin\ShiftController::createShift', ['filter' => 'csrf']);
     $routes->post('update-shift/(:num)', 'Admin\ShiftController::updateShift/$1', ['filter' => 'csrf']);
     $routes->post('delete-shift/(:num)', 'Admin\ShiftController::deleteShift/$1', ['filter' => 'csrf']);
+    $routes->get('user-shifts', 'Admin\ShiftController::userShifts');
+    $routes->post('assign-shift', 'Admin\ShiftController::assignShift', ['filter' => 'csrf']);
     $routes->get('attendance', 'Admin\AttendanceController::index');
     $routes->get('leaves', 'Admin\LeaveController::index');
     $routes->get('reports', 'Admin\ReportController::index');

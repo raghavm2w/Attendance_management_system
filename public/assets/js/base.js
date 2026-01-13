@@ -20,3 +20,14 @@ function showAlert(message, type) {
             timeout = setTimeout(later, wait);
         };
     }
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
+    }
