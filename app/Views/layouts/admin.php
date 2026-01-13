@@ -148,6 +148,7 @@
   to { transform: rotate(360deg); }
 }
     </style>
+    <?= $this->renderSection('styles') ?>
 </head>
 <body>
 
