@@ -170,9 +170,22 @@
             <a href="/admin/leaves" class="nav-link <?= strpos(uri_string(), 'admin/leaves') !== false ? 'active' : '' ?>">
                 <i class="bi bi-file-earmark-text"></i> Leaves
             </a>
-            <a href="/admin/shifts" class="nav-link <?= strpos(uri_string(), 'admin/shifts') !== false ? 'active' : '' ?>">
-                <i class="bi bi-clock"></i> Shifts
+            <a href="#shiftsSubmenu" class="nav-link d-flex align-items-center justify-content-between <?= (strpos(uri_string(), 'admin/shifts') !== false || strpos(uri_string(), 'admin/user-shifts') !== false) ? 'active' : '' ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?= (strpos(uri_string(), 'admin/shifts') !== false || strpos(uri_string(), 'admin/user-shifts') !== false) ? 'true' : 'false' ?>" aria-controls="shiftsSubmenu">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-clock"></i> Shifts Management
+                </div>
+                <i class="bi bi-chevron-down" style="font-size: 0.8rem;"></i>
             </a>
+            <div class="collapse <?= (strpos(uri_string(), 'admin/shifts') !== false || strpos(uri_string(), 'admin/user-shifts') !== false) ? 'show' : '' ?>" id="shiftsSubmenu">
+                <div class="d-flex flex-column ps-4">
+                    <a href="/admin/shifts" class="nav-link <?= strpos(uri_string(), 'admin/shifts') !== false ? 'active' : '' ?>" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                        <i class="bi bi-list-ul"></i> Shifts
+                    </a>
+                    <a href="/admin/user-shifts" class="nav-link <?= strpos(uri_string(), 'admin/user-shifts') !== false ? 'active' : '' ?>" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                        <i class="bi bi-person-badge"></i> User Shifts
+                    </a>
+                </div>
+            </div>
             <a href="/admin/reports" class="nav-link <?= strpos(uri_string(), 'admin/reports') !== false ? 'active' : '' ?>">
                 <i class="bi bi-graph-up"></i> Reports
             </a>

@@ -174,7 +174,7 @@
             </div>
             <div class="modal-body pt-3">
                 <input type="hidden" id="deleteShiftId">
-                <p class="text-muted mb-0">Are you sure you want to delete <strong id="deleteShiftName"></strong>?</p>
+                <p class="text-muted mb-0">Are you sure you want to delete this shift ?</p>
             </div>
             <div class="modal-footer border-top-0 pt-0">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>

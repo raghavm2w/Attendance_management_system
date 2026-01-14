@@ -4,21 +4,31 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\Shift;
+use App\Models\User;
+use App\Models\UserShift;
 
 class ShiftController extends BaseController
 {
     private Shift $shiftModel;
+    private UserShift $userShiftModel;
     
     public function __construct()
     {
         $this->shiftModel = new Shift();
+        $this->userShiftModel = new UserShift();
+
     }
     
     public function index()
     {
         return view('admin/shifts');
     }
-    
+      public function userShifts()
+    {
+        $shifts = $this->shiftModel->findAll();
+        return view('admin/user_shifts', ['shifts' => $shifts]);
+    }
+
     public function createShift()
     {
         try {
@@ -162,6 +172,44 @@ class ShiftController extends BaseController
         } catch (\Throwable $e) {
             log_message('error', 'Delete Shift Error: ' . $e->getMessage());
             return error(500, 'Internal server error', ['csrf' => csrf_hash()]);
+        }
+    }
+
+  
+    public function assignShift()
+    {
+        try {
+            $rules = [
+                'email'    => 'required|valid_email',
+                'shift_id' => 'required|integer|is_not_unique[shifts.id]'
+            ];
+
+            if (!$this->validate($rules)) {
+                 return error(422, 'Validation failed', [
+                    'errors' => $this->validator->getErrors(),
+                    'csrf'   => csrf_hash()
+                ]);
+            }
+            $data = $this->request->getJSON(true);
+
+            $email = trim($data['email']);
+            $shiftId = (int) $data['shift_id'];
+
+            $userModel = new User();
+            $user = $userModel->findByEmail($email);
+
+            if (!$user) {
+                return error(404, 'User not found', ['csrf' => csrf_hash()]);
+            }
+
+            $message = $this->userShiftModel->assignShiftToUser($user['id'], $shiftId);
+            
+
+            return success(200, "shift assigned successfully", ['csrf' => csrf_hash()]);
+
+        } catch (\Throwable $e) {
+            log_message('error', 'Assign Shift Error: ' . $e->getMessage());
+            return error(500, 'An error occurred while assigning shift', ['csrf' => csrf_hash()]);
         }
     }
 }

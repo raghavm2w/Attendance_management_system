@@ -44,27 +44,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function showAlert(message, type = 'success') {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
-        alertDiv.style.zIndex = '9999';
-        alertDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        document.body.appendChild(alertDiv);
-        setTimeout(() => alertDiv.remove(), 3000);
-    }
+    // function showAlert(message, type = 'success') {
+    //     const alertDiv = document.createElement('div');
+    //     alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+    //     alertDiv.style.zIndex = '9999';
+    //     alertDiv.innerHTML = `
+    //         ${message}
+    //         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    //     `;
+    //     document.body.appendChild(alertDiv);
+    //     setTimeout(() => alertDiv.remove(), 3000);
+    // }
 
-    function escapeHtml(text) {
-        if (text === null || text === undefined) return '';
-        return String(text)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
 
     // Format time (13:00 -> 01:00 PM)
     function formatTime(timeString) {
@@ -159,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <i class="bi bi-pencil"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-danger btn-delete-shift" 
-                                data-id="${shift.id}" data-type="${shift.type}" title="Delete">
+                                data-id="${shift.id}" data-type="${escapeHtml(shift.type)}" title="Delete">
                             <i class="bi bi-trash"></i>
                         </button>
                     </td>
@@ -231,9 +222,9 @@ document.addEventListener('DOMContentLoaded', function () {
         paginationControls.innerHTML = html;
     }
 
-    // ============ EVENT LISTENERS ============
 
-    // Search
+
+    // Search event listener
     searchInput.addEventListener('input', debounce(function (e) {
         currentState.search = e.target.value.trim();
         currentState.page = 1; // Reset to first page
@@ -376,8 +367,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 addShiftModal.hide();
                 fetchShifts();
             } else {
-                if (result.data?.csrf) {
-                    document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.data.csrf);
+                if (result.errors?.csrf) {
+                    document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.errors.csrf);
                 }
                 if (result.errors) {
                     // Handle server-side validation errors
@@ -414,7 +405,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const editBtn = e.target.closest('.btn-edit-shift');
         if (editBtn) {
             const shiftData = JSON.parse(decodeURIComponent(editBtn.dataset.shift));
-
             editIdInput.value = shiftData.id;
             editNameInput.value = shiftData.type;
 
@@ -470,8 +460,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 editShiftModal.hide();
                 fetchShifts();
             } else {
-                if (result.data?.csrf) {
-                    document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.data.csrf);
+                if (result.errors?.csrf) {
+                    document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.errors.csrf);
                 }
                 if (result.errors && result.errors.errors) {
                     Object.entries(result.errors.errors).forEach(([field, message]) => {
@@ -501,7 +491,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const deleteBtn = e.target.closest('.btn-delete-shift');
         if (deleteBtn) {
             deleteIdInput.value = deleteBtn.dataset.id;
-            deleteNameSpan.textContent = deleteBtn.dataset.type;
+            // deleteNameSpan.textContent = deleteBtn.dataset.type;
             deleteShiftModal.show();
         }
     });
