@@ -51,7 +51,7 @@
     <div class="card-body">
         <!-- Search and Filter Section -->
         <div class="row mb-3 g-2">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                     <input type="text" class="form-control border-start-0 ps-0" id="searchInput" placeholder="Search by name or email...">
@@ -73,16 +73,14 @@
             </div>
             <div class="col-md-2">
                 <select class="form-select" id="statusFilter">
-                    <option value="">All Status</option>
-                    <option value="1">Active</option>
-                    <option value="0">Inactive</option>
+                    <option value="1" selected>Active</option>
+                    <option value="0">Deleted</option>
                 </select>
             </div>
-            <!-- <div class="col-md-2 d-flex align-items-center">
-                <button class="btn btn-outline-secondary w-100" id="clearFilters">
-                    <i class="bi bi-x-circle me-1"></i> Clear
-                </button>
-            </div> -->
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-outline-grey w-50" id="btnExport"><i class="bi bi-download"></i> Export</button>
+                <button class="btn btn-outline-grey w-50" id="btnImport"><i class="bi bi-upload"></i> Import</button>
+            </div>
         </div>
         
         <!-- Table -->
@@ -186,6 +184,42 @@
     </div>
 </div>
 
+<!-- Import Users Modal -->
+<div class="modal fade" id="importUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold">Import Users</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-4">
+                <form id="importUserForm" enctype="multipart/form-data">
+                    <div class="mb-4 text-center">
+                         <div class="mb-3">
+                            <i class="bi bi-file-earmark-excel text-success display-4"></i>
+                         </div>
+                         <p class="text-muted small">Upload a CSV or Excel file to import users in bulk.</p>
+                         <a href="<?= base_url('assets/samples/users_import_sample.csv') ?>" class="text-decoration-none small" download><i class="bi bi-download me-1"></i>Download Sample Template</a>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="importFile" class="form-label small fw-semibold text-muted">SELECT FILE</label>
+                        <input type="file" class="form-control" id="importFile" name="file" accept=".csv, .xlsx, .xls" required>
+                        <div class="invalid-feedback">Please select a valid file.</div>
+                    </div>
+                    
+                    <div class="d-grid pt-2">
+                        <button id="import-submit" type="submit" class="btn btn-primary fw-semibold">Import Users</button>
+                    </div>
+                    <div class="loader hidden">
+                        <div class="spinner"></div>
+                    </div> 
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Edit User Modal -->
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -237,7 +271,7 @@
             </div>
             <div class="modal-body pt-3">
                 <input type="hidden" id="deleteUserId">
-                <p class="text-muted mb-0">Are you sure you want to delete <strong id="deleteUserName"></strong>? This action will deactivate the user.</p>
+                <p class="text-muted mb-0">Are you sure you want to delete this user ? This action will deactivate the user.</p>
             </div>
             <div class="modal-footer border-top-0 pt-0">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>

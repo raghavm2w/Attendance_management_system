@@ -16,7 +16,7 @@
 <header class="navbar bg-white border-bottom px-4">
     <div class="container-fluid">
         <span class="navbar-brand fw-semibold">
-            <i class="bi bi-clock-fill text-primary me-2"></i>
+            <i class="bi bi-calendar2-check-fill me-2"></i>
             Attendance System
         </span>
     <nav class="d-flex ">

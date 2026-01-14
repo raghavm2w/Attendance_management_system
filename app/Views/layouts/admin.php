@@ -195,7 +195,7 @@
     <!-- Topbar -->
     <header class="topbar">
         <div class="d-flex align-items-center">
-            <h5 class="mb-0 text-dark fw-semibold page-title">Dashboard</h5>
+            <h5 class="mb-0 text-dark fw-semibold page-title">Attendance Management System</h5>
         </div>
         <div class="dropdown profile-dropdown">
             <button class="btn btn-link text-dark text-decoration-none dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">

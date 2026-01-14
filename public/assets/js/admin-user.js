@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const passwordInput = document.getElementById('userPassword');
     const addsubmitBtn = document.getElementById("add-submit");
 
+
     // Initialize Bootstrap Modal
     const addUserModal = new bootstrap.Modal(addUserModalElement);
 
@@ -15,6 +16,61 @@ document.addEventListener('DOMContentLoaded', function () {
             addUserForm.reset();
             clearAllErrors();
             addUserModal.show();
+        });
+    }
+
+    // Import User Functionality
+    const btnImport = document.getElementById('btnImport');
+    const importUserModalElement = document.getElementById('importUserModal');
+    const importUserForm = document.getElementById('importUserForm');
+    const importUserModal = new bootstrap.Modal(importUserModalElement);
+
+    if (btnImport) {
+        btnImport.addEventListener('click', function () {
+            importUserForm.reset();
+            importUserModal.show();
+        });
+    }
+
+    if (importUserForm) {
+        importUserForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(importUserForm);
+            const submitBtn = document.getElementById('import-submit');
+            const loader = importUserForm.querySelector('.loader');
+
+            try {
+                submitBtn.disabled = true;
+                loader.classList.remove('hidden');
+
+                const response = await fetch('/admin/import-users', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.data?.csrf) {
+                    document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.data.csrf);
+                }
+
+                if (result.status === 'success') {
+                    showAlert(result.message, "success");
+                    importUserModal.hide();
+                    fetchUsers();
+                } else {
+                    showAlert(result.message || 'Import failed', "error");
+                }
+            } catch (error) {
+                console.error('Import error:', error);
+                showAlert('An error occurred during import', "error");
+            } finally {
+                submitBtn.disabled = false;
+                loader.classList.add('hidden');
+            }
         });
     }
 
@@ -92,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (passwordInput) passwordInput.addEventListener('input', validatePassword);
     if (roleInput) roleInput.addEventListener('change', validateRole);
 
-
+    //--------------add user form submit -------------------
     if (addUserForm) {
         addUserForm.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -123,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const result = await response.json();
                 if (result.status === "error") {
-                    document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.errors.csrf);
+                    updateCSRFToken(result.data?.csrf || result.errors?.csrf);
 
                     if (result.errors.errors) {
                         Object.entries(result.errors.errors).forEach(([field, message]) => {
@@ -138,8 +194,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     return;
                 }
-                if (result.data.csrf) {
-                    document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.data.csrf);
+                if (result.data?.csrf) {
+                    updateCSRFToken(result.data?.csrf || result.errors?.csrf);
                 }
                 showAlert(result.message, "success");
                 addUserModal.hide();
@@ -156,47 +212,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-    function showLoader(show) {
-        document.querySelector('.loader').classList.toggle('hidden', !show);
-        addsubmitBtn.disabled = show;
-
-    }
-   
-
-    function showError(input, message) {
-        input.classList.add('is-invalid');
-        // Handle input-group hierarchy for password field
-        const parent = input.closest('.input-group') || input.parentElement;
-        const feedback = parent.querySelector('.invalid-feedback');
-        if (feedback) {
-            feedback.textContent = message;
-            // Ensure feedback is visible even if inside input-group
-            feedback.style.display = 'block';
-        }
-    }
-
-    function clearError(input) {
-        input.classList.remove('is-invalid');
-        const parent = input.closest('.input-group') || input.parentElement;
-        const feedback = parent.querySelector('.invalid-feedback');
-        if (feedback) {
-            feedback.textContent = '';
-            feedback.style.display = 'none';
-        }
-    }
 
     function clearAllErrors() {
         const inputs = addUserForm.querySelectorAll('.form-control, .form-select');
         inputs.forEach(input => clearError(input));
     }
+    function showLoader(show) {
+        document.querySelector('.loader').classList.toggle('hidden', !show);
+        addsubmitBtn.disabled = show;
 
-    // --------------- FETCH USERS FUNCTIONALITY 
+    }
+    // --------------- FETCH USERS FUNCTIONALITY ----------------
 
     let currentState = {
         search: '',
         role: '',
         shift: '',
-        status: '',
+        status: '1',
         sortBy: 'created_at',
         sortOrder: 'desc',
         page: 1,
@@ -207,13 +239,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const roleFilter = document.getElementById('roleFilter');
     const shiftFilter = document.getElementById('shiftFilter');
     const statusFilter = document.getElementById('statusFilter');
-    const clearFiltersBtn = document.getElementById('clearFilters');
+    const btnExport = document.getElementById('btnExport');
     const usersTableBody = document.getElementById('usersTableBody');
     const paginationInfo = document.getElementById('paginationInfo');
     const paginationControls = document.getElementById('paginationControls');
     const sortableHeaders = document.querySelectorAll('.sortable');
 
-    // Fetch users from API
+    //-------------------- Fetch users from API-----------
     async function fetchUsers() {
         try {
             const params = new URLSearchParams({
@@ -306,6 +338,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 day: 'numeric'
             });
 
+            let actionButtons = '';
+
+            if (user.is_active == 0) {
+                actionButtons = `
+                    <button class="btn btn-sm btn-outline-success btn-restore-user" title="Restore" 
+                        data-id="${user.id}" data-name="${escapeHtml(user.name)}">
+                        <i class="bi bi-arrow-counterclockwise"></i> Restore
+                    </button>
+                `;
+            } else {
+                actionButtons = `
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-sm btn-outline-primary btn-edit-user me-1" title="Edit" 
+                            data-user="${encodeURIComponent(JSON.stringify({ id: user.id, name: user.name, email: user.email, role: user.role }))}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger btn-delete-user me-1" title="Delete" 
+                            data-id="${user.id}" data-name="${escapeHtml(user.name)}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }
+
             return `
                 <tr>
                     <td>
@@ -321,16 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>${statusBadge}</td>
                     <td>${createdAt}</td>
                     <td>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-sm btn-outline-primary btn-edit-user me-1" title="Edit" 
-                                data-user="${encodeURIComponent(JSON.stringify({ id: user.id, name: user.name, email: user.email, role: user.role }))}">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger btn-delete-user me-1" title="Delete" 
-                                data-id="${user.id}" data-name="${escapeHtml(user.name)}">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
+                        ${actionButtons}
                     </td>
                 </tr>
             `;
@@ -414,8 +461,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-
-
+    // Initial fetch
+    fetchUsers();
+    //---------event listeners-----------
     // Search with debounce
     if (searchInput) {
         searchInput.addEventListener('input', debounce(async function (e) {
@@ -449,28 +497,21 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchUsers();
         });
     }
+    //---export btn---
+    if (btnExport) {
+        btnExport.addEventListener('click', function () {
+            const params = new URLSearchParams({
+                search: currentState.search,
+                role: currentState.role,
+                shift: currentState.shift,
+                status: currentState.status,
+                sort_by: currentState.sortBy,
+                sort_order: currentState.sortOrder
+            });
+            window.location.href = `/admin/export-users?${params.toString()}`;
+        });
+    }
 
-    // Clear filters
-    // if (clearFiltersBtn) {
-    //     clearFiltersBtn.addEventListener('click', function () {
-    //         currentState = {
-    //             search: '',
-    //             role: '',
-    //             shift: '',
-    //             status: '',
-    //             sortBy: 'created_at',
-    //             sortOrder: 'desc',
-    //             page: 1,
-    //             perPage: 10
-    //         };
-    //         searchInput.value = '';
-    //         roleFilter.value = '';
-    //         shiftFilter.value = '';
-    //         statusFilter.value = '';
-    //         updateSortIcons();
-    //         fetchUsers();
-    //     });
-    // }
 
     // Sortable headers
     sortableHeaders.forEach(header => {
@@ -501,10 +542,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Initial fetch
-    fetchUsers();
 
-    // ============ EDIT USER FUNCTIONALITY ============
+    // --------------EDIT USER FUNCTIONALITY -----
 
     const editUserModalElement = document.getElementById('editUserModal');
     const editUserForm = document.getElementById('editUserForm');
@@ -612,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (result.status === 'error') {
                     if (result.errors?.csrf) {
-                        document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.errors.csrf);
+                        updateCSRFToken(result.data?.csrf || result.errors?.csrf);
                     }
                     if (result.errors?.errors) {
                         Object.entries(result.errors.errors).forEach(([field, message]) => {
@@ -626,9 +665,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 if (result.data?.csrf) {
-                    document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.data.csrf);
+                    updateCSRFToken(result.data?.csrf || result.errors?.csrf);
                 }
-
                 showAlert(result.message, 'success');
                 editUserModal.hide();
                 fetchUsers();
@@ -656,7 +694,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const deleteBtn = e.target.closest('.btn-delete-user');
         if (deleteBtn) {
             deleteUserIdInput.value = deleteBtn.dataset.id;
-            deleteUserNameSpan.textContent = deleteBtn.dataset.name;
             deleteUserModal.show();
         }
     });
@@ -681,10 +718,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 const result = await response.json();
 
                 if (result.data?.csrf) {
-                    document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.data.csrf);
+                    updateCSRFToken(result.data?.csrf || result.errors?.csrf);
                 }
 
                 if (result.status === 'error') {
+                    updateCSRFToken(result.data?.csrf || result.errors?.csrf);
+
                     showAlert(result.message, 'error');
                     return;
                 }
@@ -702,5 +741,50 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // Restore User Logic
+    usersTableBody.addEventListener('click', async function (e) {
+        const restoreBtn = e.target.closest('.btn-restore-user');
+        if (restoreBtn) {
+            const userId = restoreBtn.dataset.id;
+            const userName = restoreBtn.dataset.name;
+
+            if (confirm(`Are you sure you want to restore ${userName}?`)) {
+                try {
+                    restoreBtn.disabled = true;
+                    restoreBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>';
+
+                    const response = await fetch(`/admin/restore-user/${userId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.data?.csrf) {
+                        document.querySelector('meta[name="csrf-token"]').setAttribute('content', result.data.csrf);
+                    }
+
+                    if (result.status === 'success') {
+                        showAlert(result.message, 'success');
+                        fetchUsers();
+                    } else {
+                        showAlert(result.message || 'Failed to restore user', 'error');
+                        restoreBtn.disabled = false;
+                        restoreBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Restore';
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    showAlert('An error occurred', 'error');
+                    restoreBtn.disabled = false;
+                    restoreBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Restore';
+                }
+            }
+        }
+    });
 
 });
