@@ -134,4 +134,12 @@ class User extends Model
             throw $e;
         }
     }
+    public function restore($id){
+        try{
+            return $this->update($id, ['is_active' => 1]);
+
+        }catch (\Throwable $e) {
+            throw $e;
+        }
+    }
 }

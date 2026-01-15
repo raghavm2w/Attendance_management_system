@@ -34,7 +34,7 @@ class AuthController extends BaseController
             // Redirect if already logged in
             if ($this->isLoggedIn()) {
                 $role = $_REQUEST['auth_user']['role'] ?? 'user';
-                $redirect = $role === 'admin' ? '/admin/dash' : '/api/home';
+                $redirect = $role === 'admin' ? '/admin/dash' : '/user/home';
                 return success(200, 'Already logged in', ['role' => $role, 'redirect' => $redirect, 'csrf' => csrf_hash()]);
             }
             
@@ -154,7 +154,7 @@ class AuthController extends BaseController
     private function redirectByRole()
     {
         $role = $_REQUEST['auth_user']['role'] ?? 'user';
-        $redirect = $role === 'admin' ? '/admin/dash' : '/api/home';
+        $redirect = $role === 'admin' ? '/admin/dash' : '/user/home';
         return redirect()->to($redirect);
     }
 }

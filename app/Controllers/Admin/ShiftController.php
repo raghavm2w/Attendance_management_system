@@ -212,4 +212,41 @@ class ShiftController extends BaseController
             return error(500, 'An error occurred while assigning shift', ['csrf' => csrf_hash()]);
         }
     }
+
+    public function bulkAssignShift()
+    {
+        try {
+            $rules = [
+                'user_ids' => 'required',
+                'shift_id' => 'required|integer|is_not_unique[shifts.id]'
+            ];
+
+            if (!$this->validate($rules)) {
+                return error(422, 'Validation failed', [
+                    'errors' => $this->validator->getErrors(),
+                    'csrf'   => csrf_hash()
+                ]);
+            }
+
+            $data = $this->request->getJSON(true);
+            $userIds = $data['user_ids'];
+            $shiftId = (int) $data['shift_id'];
+
+            if (!is_array($userIds) || empty($userIds)) {
+                return error(422, 'No users selected', ['csrf' => csrf_hash()]);
+            }
+
+            $successCount = 0;
+            foreach ($userIds as $userId) {
+                $this->userShiftModel->assignShiftToUser((int)$userId, $shiftId);
+                $successCount++;
+            }
+
+            return success(200, "Shift assigned to {$successCount} users successfully", ['csrf' => csrf_hash()]);
+
+        } catch (\Throwable $e) {
+            log_message('error', 'Bulk Assign Shift Error: ' . $e->getMessage());
+            return error(500, 'An error occurred while bulk assigning shifts', ['csrf' => csrf_hash()]);
+        }
+    }
 }

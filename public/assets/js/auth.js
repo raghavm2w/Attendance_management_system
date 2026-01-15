@@ -94,7 +94,7 @@ if (loginForm) {
         if (data.data.role === 'admin') {
           window.location.href = "/admin/dash";
         } else {
-          window.location.href = "/api";
+          window.location.href = "/user/home";
         }
       })
       .catch(err => {
