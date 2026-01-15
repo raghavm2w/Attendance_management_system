@@ -86,4 +86,16 @@ class Shift extends Model
             throw $e;
         }
     }
+    public function getShiftByUserId($userId)
+    {
+        try{
+             $builder = $this->builder();
+           return $builder->select('shifts.type,shifts.start_time,shifts.end_time,shifts.grace_time')
+            ->join('user_shifts u', 'shifts.id = u.shift_id')
+            ->where('u.user_id', $userId)
+             ->get()->getResultArray();
+        } catch (\Throwable $e) {
+            throw $e;
+        }
+    }
 }

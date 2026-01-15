@@ -6,7 +6,7 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/login', 'AuthController::index');
-$routes->post('/login', 'AuthController::login', ['filter' => 'csrf']);
+$routes->post('/login', 'AuthController::login');
 $routes->post('/logout', 'AuthController::logout', ['filter' => 'csrf']);
 
 $routes->group('admin', ['filter' => ['auth', 'admin']], function ($routes) {
@@ -30,12 +30,22 @@ $routes->group('admin', ['filter' => ['auth', 'admin']], function ($routes) {
     $routes->get('reports', 'Admin\ReportController::index');
     $routes->post('import-users','Admin\UserController::importUsers',['filter' => 'csrf']);
     $routes->get('export-users','Admin\UserController::exportUsers');
+    $routes->get('settings', 'Admin\SettingsController::index');
+    $routes->get('settings/ips', 'Admin\SettingsController::ips');
+    $routes->get('settings/fetch-ips', 'Admin\SettingsController::fetchIps');
+    $routes->post('settings/add-ip', 'Admin\SettingsController::createIp', ['filter' => 'csrf']);
+    $routes->post('settings/update-ip/(:num)', 'Admin\SettingsController::updateIp/$1', ['filter' => 'csrf']);
+    $routes->post('settings/delete-ip/(:num)', 'Admin\SettingsController::deleteIp/$1', ['filter' => 'csrf']);
+    $routes->post('settings/restore-ip/(:num)', 'Admin\SettingsController::restoreIp/$1', ['filter' => 'csrf']);
+    $routes->get('settings/timezone', 'Admin\SettingsController::timezone');
+    $routes->post('settings/update-timezone', 'Admin\SettingsController::updateTimezone', ['filter' => 'csrf']);
 });
 
 $routes->group('user', ['filter' => 'auth'], function ($routes) {
     $routes->get('home', 'User\HomeController::index');
     $routes->get('attendance', 'User\AttendanceController::index');
     $routes->get('leaves', 'User\LeaveController::index');
+    $routes->post('check-in','User\HomeController::checkIn');
 });
 
 
