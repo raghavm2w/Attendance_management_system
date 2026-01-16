@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Attendance extends Model
+class WeeklyOff extends Model
 {
-    protected $table            = 'attendance';
+    protected $table            = 'weekly_offs';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id','check_in','check_out','status'];
+    protected $allowedFields    = ['id', 'day_of_week'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -28,8 +28,10 @@ class Attendance extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules      = [
+        'id'          => 'permit_empty|integer',
+        'day_of_week' => 'required|integer|in_list[0,1,2,3,4,5,6]|is_unique[weekly_offs.day_of_week,id,{id}]'
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
@@ -43,25 +45,31 @@ class Attendance extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-    public const STATUS_ABSENT      = 0;
-    public const STATUS_PRESENT     = 1;
-    public const STATUS_HALF_DAY    = 2;
-    public const STATUS_IN_PROGRESS = 3;
 
-    public function checkIn( array $data){
-        try{
-            $data['status'] = self::STATUS_IN_PROGRESS;
-            return $this->insert($data);
+    public function updateOffDay($days) {
+        try {
+            $this->db->transStart();
+            // Remove existing weekly offs
+            $this->truncate();
 
-        }catch (\Throwable $e) {
-            throw $e;
-        }
-    }
-    public function checkOut(array $data){
-        try{
-            return $this->update($data['id'],['check_out'=>$data['check_out']]);
-            
-        }catch (\Throwable $e) {
+            // Insert new weekly offs
+            if (!empty($days)) {
+                $insertData = [];
+
+                foreach ($days as $day) {
+                    $insertData[] = [
+                        'day_of_week' => (int) $day,
+                    ];
+                }
+
+             $this->insertBatch($insertData);
+            }
+
+            $this->db->transComplete();
+
+            return $this->db->transStatus();
+
+        } catch (\Throwable $e) {
             throw $e;
         }
     }
