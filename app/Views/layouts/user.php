@@ -149,7 +149,7 @@
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/user/home">
                 <i class="bi bi-calendar2-check-fill me-2"></i>
-                <span>AttendX</span>
+                <span>Attendance System</span>
             </a>
             
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
@@ -210,7 +210,7 @@
     <!-- Footer -->
     <footer class="footer mt-auto">
         <div class="container text-center">
-            <p class="text-muted small mb-0">&copy; <?= date('Y') ?> AttendX. All rights reserved.</p>
+            <p class="text-muted small mb-0">&copy; <?= date('Y') ?> Attendance System Inc. All rights reserved.</p>
         </div>
     </footer>
 

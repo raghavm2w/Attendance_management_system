@@ -189,6 +189,22 @@
             <a href="/admin/reports" class="nav-link <?= strpos(uri_string(), 'admin/reports') !== false ? 'active' : '' ?>">
                 <i class="bi bi-graph-up"></i> Reports
             </a>
+            <a href="#settingsSubmenu" class="nav-link d-flex align-items-center justify-content-between <?= (strpos(uri_string(), 'admin/settings') !== false) ? 'active' : '' ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?= (strpos(uri_string(), 'admin/settings') !== false) ? 'true' : 'false' ?>" aria-controls="settingsSubmenu">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-gear"></i> Settings
+                </div>
+                <i class="bi bi-chevron-down" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse <?= (strpos(uri_string(), 'admin/settings') !== false) ? 'show' : '' ?>" id="settingsSubmenu">
+                <div class="d-flex flex-column ps-4">
+                    <a href="/admin/settings/ips" class="nav-link <?= strpos(uri_string(), 'admin/settings/ips') !== false ? 'active' : '' ?>" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                        <i class="bi bi-shield-lock"></i> IP Settings
+                    </a>
+                    <a href="/admin/settings/timezone" class="nav-link <?= strpos(uri_string(), 'admin/settings/timezone') !== false ? 'active' : '' ?>" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                        <i class="bi bi-globe"></i> Timezone
+                    </a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -207,7 +223,6 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm mt-2">
                 <li><a class="dropdown-item py-2" href="#"><i class="bi bi-person me-2"></i> Profile</a></li>
-                <li><a class="dropdown-item py-2" href="#"><i class="bi bi-gear me-2"></i> Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li>
                      <a class="dropdown-item py-2 text-danger" href="#" onclick="logout()">

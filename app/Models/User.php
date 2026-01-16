@@ -46,7 +46,7 @@ class User extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-     public function findByEmail(string $email): ?array
+     public function findByEmail(string $email)
     {
         try{
         return $this->where('email', $email)

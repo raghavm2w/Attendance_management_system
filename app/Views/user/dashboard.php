@@ -6,7 +6,7 @@
     <div class="col-12">
         <div class="d-md-flex align-items-center justify-content-between">
             <div>
-                <h3 class="fw-bold mb-1">Welcome back, <?= session()->get('name') ?>! 👋</h3>
+                <!-- <h3 class="fw-bold mb-1">Welcome back,! 👋</h3> -->
                 <p class="text-muted mb-0">Here's your attendance overview for today.</p>
             </div>
             <div class="mt-3 mt-md-0 d-flex align-items-center bg-white p-2 px-3 rounded-pill shadow-sm border">
@@ -63,13 +63,13 @@
                 <h6 class="text-white text-opacity-75 mb-3">Current Shift Info</h6>
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <h4 class="fw-bold mb-1">Morning Shift</h4>
+                        <h4 class="fw-bold mb-1"><?= $shift['type'] ?> Shift</h4>
                         <p class="mb-0 small text-white text-opacity-75">
                             <i class="bi bi-calendar3 me-1"></i> Mon - Fri
                         </p>
                     </div>
                     <div class="text-end">
-                        <div class="badge bg-white text-primary mb-1">09:00 AM - 05:00 PM</div>
+                        <div class="badge bg-white text-primary mb-1"><?= $shift['start_time'] ?> AM - <?= $shift['end_time'] ?> PM</div>
                     </div>
                 </div>
             </div>
