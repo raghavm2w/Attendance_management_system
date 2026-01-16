@@ -39,6 +39,15 @@ $routes->group('admin', ['filter' => ['auth', 'admin']], function ($routes) {
     $routes->post('settings/restore-ip/(:num)', 'Admin\SettingsController::restoreIp/$1', ['filter' => 'csrf']);
     $routes->get('settings/timezone', 'Admin\SettingsController::timezone');
     $routes->post('settings/update-timezone', 'Admin\SettingsController::updateTimezone', ['filter' => 'csrf']);
+    $routes->get('policy/holiday', 'Admin\PolicyController::holiday');
+    $routes->post('policy/holiday/update-weekly-off', 'Admin\PolicyController::updateWeeklyOff', ['filter' => 'csrf']);
+    $routes->post('policy/holiday/save', 'Admin\PolicyController::saveHoliday', ['filter' => 'csrf']);
+    $routes->post('policy/holiday/delete/(:num)', 'Admin\PolicyController::deleteHoliday/$1', ['filter' => 'csrf']);
+    $routes->get('policy/leave', 'Admin\PolicyController::leaves');
+    $routes->post('policy/leave', 'Admin\PolicyController::storeLeaveType', ['filter' => 'csrf']);
+    $routes->post('policy/leave/update/(:num)', 'Admin\PolicyController::updateLeaveType/$1', ['filter' => 'csrf']);
+    $routes->post('policy/leave/delete/(:num)', 'Admin\PolicyController::deleteLeaveType/$1', ['filter' => 'csrf']);
+
 });
 
 $routes->group('user', ['filter' => 'auth'], function ($routes) {

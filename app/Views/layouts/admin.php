@@ -170,9 +170,10 @@
             <a href="/admin/leaves" class="nav-link <?= strpos(uri_string(), 'admin/leaves') !== false ? 'active' : '' ?>">
                 <i class="bi bi-file-earmark-text"></i> Leaves
             </a>
+            <!-- Shift Management -->
             <a href="#shiftsSubmenu" class="nav-link d-flex align-items-center justify-content-between <?= (strpos(uri_string(), 'admin/shifts') !== false || strpos(uri_string(), 'admin/user-shifts') !== false) ? 'active' : '' ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?= (strpos(uri_string(), 'admin/shifts') !== false || strpos(uri_string(), 'admin/user-shifts') !== false) ? 'true' : 'false' ?>" aria-controls="shiftsSubmenu">
                 <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-clock"></i> Shifts Management
+                    <i class="bi bi-clock"></i> Shift Management
                 </div>
                 <i class="bi bi-chevron-down" style="font-size: 0.8rem;"></i>
             </a>
@@ -183,6 +184,24 @@
                     </a>
                     <a href="/admin/user-shifts" class="nav-link <?= strpos(uri_string(), 'admin/user-shifts') !== false ? 'active' : '' ?>" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
                         <i class="bi bi-person-badge"></i> User Shifts
+                    </a>
+                </div>
+            </div>
+
+            <!-- Policy Management -->
+            <a href="#policySubmenu" class="nav-link d-flex align-items-center justify-content-between <?= (strpos(uri_string(), 'admin/policy') !== false) ? 'active' : '' ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?= (strpos(uri_string(), 'admin/policy') !== false) ? 'true' : 'false' ?>" aria-controls="policySubmenu">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-shield-check"></i> Policy Management
+                </div>
+                <i class="bi bi-chevron-down" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="collapse <?= (strpos(uri_string(), 'admin/policy') !== false) ? 'show' : '' ?>" id="policySubmenu">
+                <div class="d-flex flex-column ps-4">
+                    <a href="/admin/policy/leave" class="nav-link <?= strpos(uri_string(), 'admin/policy/leave') !== false ? 'active' : '' ?>" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                        <i class="bi bi-file-earmark-medical"></i> Leave Policy
+                    </a>
+                    <a href="/admin/policy/holiday" class="nav-link <?= strpos(uri_string(), 'admin/policy/holiday') !== false ? 'active' : '' ?>" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                        <i class="bi bi-calendar-event"></i> Holiday Policy
                     </a>
                 </div>
             </div>

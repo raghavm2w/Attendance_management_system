@@ -95,9 +95,17 @@ class HomeController extends BaseController
                 'check_out'=>$checkOutTime,
             
         ];
-        //to be implemented// check for shift time
             $this->attendance->checkOut($data);
-
+            //----1. check for company off days and leaves of user
+            //-----2. check shift working hours and grace time
+            // calculate using required minutes and worked minutes
+            //             if ($workedMinutes >= $requiredMinutes) {
+            //     status = 'present';
+            // } elseif ($workedMinutes >= ($requiredMinutes / 2)) {
+            //     status = 'half_day';
+            // } else {
+            //     status = 'absent';
+            // }
 
 
         }  catch (\Throwable $e) {

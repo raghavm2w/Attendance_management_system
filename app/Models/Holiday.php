@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Attendance extends Model
+class Holiday extends Model
 {
-    protected $table            = 'attendance';
+    protected $table            = 'holidays';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id','check_in','check_out','status'];
+    protected $allowedFields    = ['id', 'holiday_date', 'name', 'is_optional'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -28,8 +28,17 @@ class Attendance extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules      = [
+        'id'           => 'permit_empty|integer',
+        'holiday_date' => 'required|valid_date|is_unique[holidays.holiday_date,id,{id}]',
+        'name'         => 'required|min_length[3]|max_length[150]',
+        'is_optional'  => 'permit_empty|in_list[0,1]'
+    ];
+    protected $validationMessages   = [
+        'holiday_date' => [
+            'is_unique' => 'A holiday already exists on this date.'
+        ]
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
@@ -43,26 +52,4 @@ class Attendance extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-    public const STATUS_ABSENT      = 0;
-    public const STATUS_PRESENT     = 1;
-    public const STATUS_HALF_DAY    = 2;
-    public const STATUS_IN_PROGRESS = 3;
-
-    public function checkIn( array $data){
-        try{
-            $data['status'] = self::STATUS_IN_PROGRESS;
-            return $this->insert($data);
-
-        }catch (\Throwable $e) {
-            throw $e;
-        }
-    }
-    public function checkOut(array $data){
-        try{
-            return $this->update($data['id'],['check_out'=>$data['check_out']]);
-            
-        }catch (\Throwable $e) {
-            throw $e;
-        }
-    }
 }
