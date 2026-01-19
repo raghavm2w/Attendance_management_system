@@ -18,7 +18,7 @@ class CreateLeaveTypesTable extends Migration
             'name' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
-                'comment'    => 'Sick, Casual, Earned etc',
+                'comment'    => 'half ,full day',
             ],
             'max_per_year' => [
                 'type'       => 'DECIMAL',

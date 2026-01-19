@@ -49,7 +49,7 @@ class AuthController extends BaseController
                 'csrf'   => csrf_hash()
             ]);
         }
-                $data = $this->request->getJSON(true);   
+        $data = $this->request->getJSON(true);   
 
         $email = $data['email'];
         $pass = $data['password'];

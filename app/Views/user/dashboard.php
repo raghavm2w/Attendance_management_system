@@ -6,7 +6,7 @@
     <div class="col-12">
         <div class="d-md-flex align-items-center justify-content-between">
             <div>
-                <!-- <h3 class="fw-bold mb-1">Welcome back,! 👋</h3> -->
+                <!-- <h3 class="fw-bold mb-1">Welcome back,! </h3> -->
                 <p class="text-muted mb-0">Here's your attendance overview for today.</p>
             </div>
             <div class="mt-3 mt-md-0 d-flex align-items-center bg-white p-2 px-3 rounded-pill shadow-sm border">
