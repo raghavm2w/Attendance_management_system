@@ -11,56 +11,50 @@
         </div>
     </div>
 
-    <!-- Active Leave Requests -->
+    <!-- Leave History -->
     <div class="col-lg-12">
         <div class="card border-0 shadow-sm overflow-hidden">
             <div class="card-header bg-white py-3 px-4 border-bottom">
-                <h5 class="fw-bold mb-0 small text-uppercase tracking-wider">Leave History</h5>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <h5 class="fw-bold mb-0 small text-uppercase tracking-wider">Leave History</h5>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="input-group input-group-sm" style="width: 220px;">
+                            <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" class="form-control bg-light border-0" id="searchInput" placeholder="Search leaves...">
+                        </div>
+                        <select class="form-select form-select-sm bg-light border-0" id="statusFilter" style="width: 140px;">
+                            <option value="pending" selected>Pending</option>
+                            <option value="">All Status</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr>
                             <th class="ps-4 py-3 text-muted fw-semibold small">LEAVE TYPE</th>
-                            <th class="py-3 text-muted fw-semibold small">FROM - TO</th>
+                            <th class="py-3 text-muted fw-semibold small">DURATION</th>
+                            <th class="py-3 text-muted fw-semibold small">DATE RANGE</th>
                             <th class="py-3 text-muted fw-semibold small">REASON</th>
                             <th class="py-3 text-muted fw-semibold small">STATUS</th>
-                            <th class="py-3 text-muted fw-semibold small text-end pe-4">APPLIED ON</th>
+                            <th class="py-3 text-muted fw-semibold small text-end pe-4 sortable" id="sortAppliedOn" style="cursor: pointer;">
+                                APPLIED ON <i class="bi bi-arrow-down ms-1 sort-icon"></i>
+                            </th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="ps-4">
-                                <div class="fw-bold small mb-1">Full Day Leave</div>
-                                <span class="badge bg-primary bg-opacity-10 text-primary extra-small">Medical</span>
-                            </td>
-                            <td>Jan 20, 2026 - Jan 21, 2026</td>
-                            <td class="text-muted small">Doctor's appointment and recovery.</td>
-                            <td><span class="badge rounded-pill bg-warning text-dark px-3 mt-1">Pending</span></td>
-                            <td class="text-end pe-4 text-muted small">Jan 14, 2026</td>
-                        </tr>
-                        <tr>
-                            <td class="ps-4">
-                                <div class="fw-bold small mb-1">Short Leave</div>
-                                <span class="badge bg-info bg-opacity-10 text-info extra-small">Personal</span>
-                            </td>
-                            <td>Jan 10, 2026 (02:00 PM - 05:00 PM)</td>
-                            <td class="text-muted small">Early departure for family event.</td>
-                            <td><span class="badge rounded-pill bg-success text-white px-3 mt-1">Approved</span></td>
-                            <td class="text-end pe-4 text-muted small">Jan 08, 2026</td>
-                        </tr>
-                        <tr>
-                            <td class="ps-4">
-                                <div class="fw-bold small mb-1">Half Day</div>
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary extra-small">Other</span>
-                            </td>
-                            <td>Jan 05, 2026 (First Half)</td>
-                            <td class="text-muted small">Home maintenance work.</td>
-                            <td><span class="badge rounded-pill bg-danger text-white px-3 mt-1">Rejected</span></td>
-                            <td class="text-end pe-4 text-muted small">Jan 04, 2026</td>
-                        </tr>
+                    <tbody id="leavesTableBody">
+                        <!-- Dynamic content -->
                     </tbody>
                 </table>
+            </div>
+            <div class="card-footer bg-white border-top d-flex align-items-center justify-content-between py-3 px-4">
+                <div class="text-muted small" id="paginationInfo">Showing 0-0 of 0</div>
+                <nav aria-label="Leaves pagination">
+                    <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
+                </nav>
             </div>
         </div>
     </div>
@@ -79,20 +73,26 @@
                     <div class="mb-4">
                         <label class="form-label fw-semibold small text-muted">Leave Type</label>
                         <select class="form-select border-0 bg-light py-2" id="leaveType">
+
+                        </select>
+                    </div>
+                     <div class="mb-4">
+                        <label class="form-label fw-semibold small text-muted">Leave Duration</label>
+                        <select class="form-select border-0 bg-light py-2" id="leaveDuration">
                             <option value="full">Full Day Leave</option>
                             <option value="half">Half Day Leave</option>
-                            <option value="short">Short Leave / Early Exit</option>
+                            <!-- <option value="short">Short Leave / Early Exit</option> -->
                         </select>
                     </div>
 
                     <div class="row g-3 mb-4">
                         <div class="col-6">
                             <label class="form-label fw-semibold small text-muted">From Date</label>
-                            <input type="date" class="form-control border-0 bg-light py-2">
+                            <input type="date" class="form-control border-0 bg-light py-2" min=<?= date('Y-m-d') ?>>
                         </div>
                         <div id="toDateContainer" class="col-6">
                             <label class="form-label fw-semibold small text-muted">To Date</label>
-                            <input type="date" class="form-control border-0 bg-light py-2">
+                            <input type="date" class="form-control border-0 bg-light py-2" min=<?= date('Y-m-d') ?>>
                         </div>
                     </div>
 
@@ -126,28 +126,12 @@
 <style>
     .extra-small { font-size: 0.65rem; padding: 0.3em 0.8em; }
     .tracking-wider { letter-spacing: 0.05em; }
+    .sortable:hover { background-color: #e9ecef; }
+    .sort-icon { font-size: 0.75rem; }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const leaveType = document.getElementById('leaveType');
-        const toDateContainer = document.getElementById('toDateContainer');
-        const timeContainer = document.getElementById('timeContainer');
+<script src="<?= base_url('assets/js/user-leaves.js') ?>"></script>
 
-        leaveType.addEventListener('change', function() {
-            if (this.value === 'short') {
-                toDateContainer.classList.add('d-none');
-                timeContainer.classList.remove('d-none');
-            } else if (this.value === 'half') {
-                toDateContainer.classList.add('d-none');
-                timeContainer.classList.add('d-none');
-            } else {
-                toDateContainer.classList.remove('d-none');
-                timeContainer.classList.add('d-none');
-            }
-        });
-    });
-</script>
 <?= $this->endSection() ?>

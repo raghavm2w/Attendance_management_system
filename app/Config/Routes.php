@@ -27,6 +27,9 @@ $routes->group('admin', ['filter' => ['auth', 'admin']], function ($routes) {
     $routes->post('bulk-assign-shift', 'Admin\ShiftController::bulkAssignShift', ['filter' => 'csrf']);
     $routes->get('attendance', 'Admin\AttendanceController::index');
     $routes->get('leaves', 'Admin\LeaveController::index');
+    $routes->get('fetch-leaves', 'Admin\LeaveController::fetchLeaves');
+    $routes->post('approve-leave/(:num)', 'Admin\LeaveController::approveLeave/$1', ['filter' => 'csrf']);
+    $routes->post('reject-leave/(:num)', 'Admin\LeaveController::rejectLeave/$1', ['filter' => 'csrf']);
     $routes->get('reports', 'Admin\ReportController::index');
     $routes->post('import-users','Admin\UserController::importUsers',['filter' => 'csrf']);
     $routes->get('export-users','Admin\UserController::exportUsers');
@@ -55,6 +58,10 @@ $routes->group('user', ['filter' => 'auth'], function ($routes) {
     $routes->get('attendance', 'User\AttendanceController::index');
     $routes->get('leaves', 'User\LeaveController::index');
     $routes->post('check-in','User\HomeController::checkIn');
+    $routes->get('leave-types','User\LeaveController::fetchLeaveTypes');
+    $routes->post('submit-leave','User\LeaveController::submitLeaveRequest',['filter' => 'csrf']);
+    $routes->get('fetch-leaves','User\LeaveController::fetchLeaves');
+
 });
 
 
