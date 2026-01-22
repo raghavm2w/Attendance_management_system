@@ -4,14 +4,23 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\Leave;
+use App\Models\LeaveBalance;
+use App\Models\LeaveType;
+
 
 class LeaveController extends BaseController
 {
-    protected Leave $leaveModel;
+    private Leave $leaveModel;
+    private LeaveBalance $balanceModel;
+    private LeaveType $leaveTypeModel;
+
 
     public function __construct()
     {
         $this->leaveModel = new Leave();
+        $this->balanceModel = new LeaveBalance();
+         $this->leaveTypeModel = new LeaveType();
+
     }
 
     public function index()
@@ -66,8 +75,24 @@ class LeaveController extends BaseController
             if ($leave['status'] !== 'pending') {
                 return error(400, 'Only pending leaves can be approved', ['csrf' => csrf_hash()]);
             }
+            $year = date('Y', strtotime($leave['start_date'])); //fet financial year (current)
 
-            $this->leaveModel->updateStatus((int)$id, 'approved');
+            //find if leave_balance  row exists for user for this leave_type
+            $balanceExists = $this->balanceModel->getUserBalance($leave['user_id'],$leave['leave_type_id'],$year);
+
+            if(!$balanceExists){//add user balance row
+                $type  = $this->leaveTypeModel->find($leave['leave_type_id']);
+                $total_allocated = $type['max_per_year'];
+                $used = 0;
+                $remaining = $total_allocated;
+
+                $this->balanceModel->addUserBalance($leave['user_id'],$leave['leave_type_id'],$year,$total_allocated,$used,$remaining);
+            }
+            // transaction query to update the status,update balance 
+            $approved  = $this->leaveModel->approveRequest((int)$id, 'approved',$leave);
+            if(!$approved){
+                return error(400,"insufficient leave balance", ['csrf' => csrf_hash()]);
+            }
 
             return success(200, 'Leave request approved successfully', ['csrf' => csrf_hash()]);
 

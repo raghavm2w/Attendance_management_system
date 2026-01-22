@@ -10,9 +10,9 @@ use App\Models\WeeklyOff;
 
 class PolicyController extends BaseController
 {
-    protected $leaveTypeModel;
-    protected $holidayModel;
-    protected $weeklyOffModel;
+    private $leaveTypeModel;
+    private $holidayModel;
+    private $weeklyOffModel;
 
     public function __construct()
     {

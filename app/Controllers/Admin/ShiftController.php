@@ -6,16 +6,21 @@ use App\Controllers\BaseController;
 use App\Models\Shift;
 use App\Models\User;
 use App\Models\UserShift;
+use App\Models\Settings;
+
 
 class ShiftController extends BaseController
 {
     private Shift $shiftModel;
     private UserShift $userShiftModel;
-    
+        private Settings $settings;
+
     public function __construct()
     {
         $this->shiftModel = new Shift();
         $this->userShiftModel = new UserShift();
+        $this->settings = new  Settings();
+
 
     }
     
@@ -26,6 +31,13 @@ class ShiftController extends BaseController
       public function userShifts()
     {
         $shifts = $this->shiftModel->findAll();
+         $timezone = $this->settings->getSetting('app_timezone');
+            // Convert shift times to app timezone
+            foreach ($shifts as &$shift) {
+                $shift['start_time'] = fromUtcTime($shift['start_time'], $timezone);
+                $shift['end_time'] = fromUtcTime($shift['end_time'], $timezone);
+            }
+
         return view('admin/user_shifts', ['shifts' => $shifts]);
     }
 
@@ -47,10 +59,11 @@ class ShiftController extends BaseController
             }
 
             $data = $this->request->getJSON(true);
-            
+            $timezone = $this->settings->getSetting('app_timezone');
+
             $newShift = [
                 'type'       => $data['type'],
-                'start_time' => $data['start_time'],
+                'start_time' => toUtcTime($data['start_time'],$timezone),
                 'end_time'   => $data['end_time'],
                 'grace_time' => (int) $data['grace_time']
             ];
@@ -92,6 +105,13 @@ class ShiftController extends BaseController
             ];
             
             $result = $this->shiftModel->getShifts($filters);
+            $timezone = $this->settings->getSetting('app_timezone');
+            // Convert shift times to app timezone
+            foreach ($result['shifts'] as &$shift) {
+                $shift['start_time'] = fromUtcTime($shift['start_time'], $timezone);
+                $shift['end_time'] = fromUtcTime($shift['end_time'], $timezone);
+            }
+
             
             return success(200, 'Shifts fetched successfully', [
                 'shifts' => $result['shifts'],
@@ -133,11 +153,11 @@ class ShiftController extends BaseController
             }
             
             $data = $this->request->getJSON(true);
-            
+            $timezone = $this->settings->getSetting('app_timezone');
             $updateData = [
                 'type'       => $data['type'],
-                'start_time' => $data['start_time'],
-                'end_time'   => $data['end_time'],
+                'start_time' => toUtcTime($data['start_time'],$timezone),
+                'end_time'   => toUtcTime($data['end_time'],$timezone),
                 'grace_time' => (int) $data['grace_time']
             ];
             

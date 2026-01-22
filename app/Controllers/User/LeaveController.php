@@ -8,8 +8,9 @@ use App\Models\Leave;
 
 class LeaveController extends BaseController
 {
-        protected LeaveType $leaveTypeModel;
-        protected Leave $leaveModel;
+        private LeaveType $leaveTypeModel;
+        private Leave $leaveModel;
+        
         public function __construct()
     {
         $this->leaveTypeModel = new LeaveType();

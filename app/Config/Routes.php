@@ -58,6 +58,7 @@ $routes->group('user', ['filter' => 'auth'], function ($routes) {
     $routes->get('attendance', 'User\AttendanceController::index');
     $routes->get('leaves', 'User\LeaveController::index');
     $routes->post('check-in','User\HomeController::checkIn');
+    $routes->post('check-out','User\HomeController::checkOut');
     $routes->get('leave-types','User\LeaveController::fetchLeaveTypes');
     $routes->post('submit-leave','User\LeaveController::submitLeaveRequest',['filter' => 'csrf']);
     $routes->get('fetch-leaves','User\LeaveController::fetchLeaves');

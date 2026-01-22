@@ -230,6 +230,51 @@ class Leave extends Model
             throw $e;
         }
     }
+    public function approveRequest(int $id, string $status,array $leave){
+        try{
+            $this->db->transStart(); 
+            if ($leave['type'] === 'full') {
+                 $start = new \DateTime($leave['start_date']);
+                $end   = new \DateTime($leave['end_date']);
+                $totalDays = $start->diff($end)->days + 1; 
+                $deduction = $totalDays;
+            } elseif ($leave['type'] === 'half') {
+                $deduction = 0.5;
+            } else {
+                $deduction = 0;
+            }
+            if ($deduction > 0) {
+            $year = date('Y', strtotime($leave['start_date'])); 
+
+            $builder = $this->db->table('leave_balances');
+
+            $builder->set('used', "used + {$deduction}", false)
+                    ->set('remaining', "remaining - {$deduction}", false)
+                    ->where([
+                        'user_id'       => $leave['user_id'],
+                        'leave_type_id'=> $leave['leave_type_id'],
+                        'year'          => $year
+                    ])
+                    ->where('remaining >=', $deduction)
+                    ->update();
+
+            if ($this->db->affectedRows() === 0) {
+                $this->db->transRollback();
+                return false;
+            }
+            }
+             //update status 
+            $this->updateStatus($id,$status);
+
+        $this->db->transComplete();
+
+        return $this->db->transStatus();
+        }catch (\Throwable $e) {
+         $this->db->transRollback();
+            throw $e;
+        }
+
+   }
 
     public function updateStatus(int $id, string $status): bool
     {
@@ -239,4 +284,16 @@ class Leave extends Model
             throw $e;
         }
     }
+    public function getHalfLeave($user_id){
+        try{
+            return $this->where('user_id',$user_id)
+            ->where('type','half')
+            ->where('status','approved')
+            ->where('start_date', date('Y-m-d'))
+            ->first();
+        
+    }catch (\Throwable $e) {
+            throw $e;
+        }
+}
 }

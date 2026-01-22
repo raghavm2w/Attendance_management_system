@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Attendance extends Model
+class LeaveBalance extends Model
 {
-    protected $table            = 'attendance';
+    protected $table            = 'leave_balances';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['user_id','check_in','check_out','status'];
+    protected $allowedFields    = ['user_id','leave_type_id','year','total_allocated','used','remaining'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -43,44 +43,28 @@ class Attendance extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-    public const STATUS_ABSENT      = 0;
-    public const STATUS_PRESENT     = 1;
-    public const STATUS_HALF_DAY    = 2;
-    public const STATUS_IN_PROGRESS = 3;
 
-    public function checkIn( array $data){
-        try{
-            $data['status'] = self::STATUS_IN_PROGRESS;
-            return $this->insert($data);
-
-        }catch (\Throwable $e) {
-            throw $e;
-        }
-    }
-    public function checkOut(array $data){
-        try{
-            return $this->update($data['id'],['check_out'=>$data['check_out']]);
-            
-        }catch (\Throwable $e) {
-            throw $e;
-        }
-    }
-    public function getCheckIn(int $user_id,string $checkOutTime){
-        try{
-             return $this->where('user_id', $user_id)
-                ->where('check_out', $checkOutTime)
-                ->first();
-
-        }catch (\Throwable $e) {
-            throw $e;
-        }
-    }
-    public function updateStatus(int $user_id,int $attendance_id,int $status){
+    public function getUserBalance($user_id,$leave_type_id,$year){
         try{
             return $this->where('user_id',$user_id)
-                ->where('id',$attendance_id)
-                ->set(['status'=>$status])
-                ->update();
+            ->where('leave_type_id',$leave_type_id)
+            ->where('year',$year)->first();
+
+        }catch (\Throwable $e) {
+            throw $e;
+        }
+    }
+    public function addUserBalance($user_id,$leave_id,$year,$total_allocated,$used,$remaining){
+        try{
+            return $this->insert([
+                'user_id'=>$user_id,
+                'leave_type_id'=>$leave_id,
+                'year'=>$year,
+                'total_allocated'=>$total_allocated,
+                'used'=>$used,
+                'remaining'=>$remaining
+            ]);
+
         }catch (\Throwable $e) {
             throw $e;
         }
